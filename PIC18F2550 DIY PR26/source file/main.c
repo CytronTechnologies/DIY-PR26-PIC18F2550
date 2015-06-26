@@ -1,10 +1,12 @@
 //==========================================================================
 //	Author				: Cytron Technologies		
 //	Project				: USB Game Controller
-//	Project description	: This firmware implements a standard USB game controller with 
-//                        12 inputs (4 directional buttons and 8 general purpose buttons).
-//                        The ompiler used is Microchip C18. This project modify the program
-//                        provided by Microchip Technology, Inc.
+//	Project description             : This firmware implements a standard USB game controller with
+//                                        12 inputs (4 directional buttons and 8 general purpose buttons).
+//                                        This project use PIC18F255.Competible with MPLAB and MPLABX
+//                                        Compiler only with Microchip C18.
+//                                        This project modify the program provided by Microchip Technology, Inc.
+
 //==========================================================================
 
 //	include
@@ -22,7 +24,7 @@
 #ifndef USBMOUSE_C
 #define USBMOUSE_C
 
-#if defined(PICDEM_FS_USB)      // Configuration bits for PICDEM FS USB Demo Board (based on PIC18F4550)
+#if defined(PICDEM_FS_USB)                  // Configuration bits for PICDEM FS USB Demo Board (based on PIC18F4550)
         #pragma config PLLDIV   = 5         // (20 MHz crystal on PICDEM FS USB board)
         #pragma config CPUDIV   = OSC1_PLL2   
         #pragma config USBDIV   = 2         // Clock source from 96MHz PLL/2
@@ -32,7 +34,7 @@
         #pragma config PWRT     = OFF
         #pragma config BOR      = ON
         #pragma config BORV     = 3
-        #pragma config VREGEN   = ON      //USB Voltage Regulator
+        #pragma config VREGEN   = ON         //USB Voltage Regulator
         #pragma config WDT      = OFF
         #pragma config WDTPS    = 32768
         #pragma config MCLRE    = ON
@@ -52,15 +54,15 @@
         #pragma config EBTR1    = OFF
         #pragma config EBTRB    = OFF
 
-#elif defined(PIC18F87J50_PIM)				// Configuration bits for PIC18F87J50 FS USB Plug-In Module board
-        #pragma config XINST    = OFF   	// Extended instruction set
-        #pragma config STVREN   = ON      	// Stack overflow reset
+#elif defined(PIC18F87J50_PIM)              // Configuration bits for PIC18F87J50 FS USB Plug-In Module board
+        #pragma config XINST    = OFF       // Extended instruction set
+        #pragma config STVREN   = ON        // Stack overflow reset
         #pragma config PLLDIV   = 3         // (12 MHz crystal used on this board)
-        #pragma config WDTEN    = OFF      	// Watch Dog Timer (WDT)
-        #pragma config CP0      = OFF      	// Code protect
+        #pragma config WDTEN    = OFF       // Watch Dog Timer (WDT)
+        #pragma config CP0      = OFF       // Code protect
         #pragma config CPUDIV   = OSC1      // OSC1 = divide by 1 mode
-        #pragma config IESO     = OFF      	// Internal External (clock) Switchover
-        #pragma config FCMEN    = OFF      	// Fail Safe Clock Monitor
+        #pragma config IESO     = OFF       // Internal External (clock) Switchover
+        #pragma config FCMEN    = OFF       // Fail Safe Clock Monitor
         #pragma config FOSC     = HSPLL     // Firmware must also set OSCTUNE<PLLEN> to start PLL!
         #pragma config WDTPS    = 32768
         #pragma config MSSPMSK  = MSK5
@@ -69,7 +71,7 @@
 #elif defined(PIC18F46J50_PIM)
      #pragma config WDTEN = OFF          //WDT disabled (enabled by SWDTEN bit)
      #pragma config PLLDIV = 3           //Divide by 3 (12 MHz oscillator input)
-     #pragma config STVREN = ON            //stack overflow/underflow reset enabled
+     #pragma config STVREN = ON          //stack overflow/underflow reset enabled
      #pragma config XINST = OFF          //Extended instruction set disabled
      #pragma config CPUDIV = OSC1        //No CPU system clock divide
      #pragma config CP0 = OFF            //Program memory is not code-protected
@@ -179,20 +181,20 @@
 //	define
 //================================================================================									
 //output->LAT, input->PORT
-#define led			LATBbits.LATB7 								//RB7=output
-#define select		PORTAbits.RA4 								//RA4=input	
-#define start		PORTBbits.RB5 								//RB5=input	
-#define b_1			PORTCbits.RC7 								//RC7=input
-#define b_2			PORTCbits.RC1 								//RC1=input
-#define b_3			PORTCbits.RC6 								//RC6=input
-#define b_4			PORTCbits.RC2 								//RC2=input
+#define LED		LATBbits.LATB7 								//RB7=output
+#define SELECT		PORTAbits.RA4 								//RA4=input
+#define START		PORTBbits.RB5 								//RB5=input
+#define b_1		PORTCbits.RC7 								//RC7=input
+#define b_2		PORTCbits.RC1 								//RC1=input
+#define b_3		PORTCbits.RC6 								//RC6=input
+#define b_4		PORTCbits.RC2 								//RC2=input
 #define b_up		PORTBbits.RB2 								//RB2=input
 #define b_down		PORTBbits.RB0 								//RB0=input
 #define b_right		PORTBbits.RB3 								//RB3=input
 #define b_left		PORTBbits.RB1 								//RB1=input
 #define analog_sw	PORTBbits.RB4								//RB4=input
-#define button1		PORTCbits.RC0								//RC0=input		
-#define button2		PORTAbits.RA5								//RA5=input	
+#define BUTTON1		PORTCbits.RC0								//RC0=input
+#define BUTTON2		PORTAbits.RA5								//RA5=input
 #define	CHANNEL0	0b00000001									// AN0
 #define	CHANNEL1	0b00000101									// AN1
 #define	CHANNEL2	0b00001001									// AN2
@@ -398,14 +400,14 @@ static void InitializeSystem(void)
     #if (defined(__18CXX) & !defined(PIC18F87J50_PIM))
 
 	//ADC Configuration
-	ADCON0=0x01;									//enable ADON
-	ADCON1=0x0B;									//use only 4 analog pins
-	ADCON2=0b00110101;								//use left justified for A/D Result Format Select bit 
+	ADCON0=0x01;				//enable ADON
+	ADCON1=0x0B;				//use only 4 analog pins
+	ADCON2=0b00110101;			//use left justified for A/D Result Format Select bit 
 
-	//Tris configuration (input or output)			INPUT=1, OUTPUT=0
-	TRISA = 0b00111111;								//set RA2, RA3, RA4 and RA5 as input, else as output
-	TRISB = 0b00111111;								//set RB0, RB1, RB2 RB3 and RB4 as input, else as output
-	TRISC = 0b11001111;								//set PORTC pin RC4 and RC5 as output else as input
+	//Tris configuration (input or output)	INPUT=1, OUTPUT=0
+	TRISA = 0b00111111;			//set RA2, RA3, RA4 and RA5 as input, else as output
+	TRISB = 0b00111111;			//set RB0, RB1, RB2 RB3 and RB4 as input, else as output
+	TRISC = 0b11001111;			//set PORTC pin RC4 and RC5 as output else as input
 
     #elif defined(__C30__)
         AD1PCFGL = 0xFFFF;
@@ -432,10 +434,10 @@ static void InitializeSystem(void)
 	//Configure all I/O pins to use digital input buffers.  The PIC18F87J50 Family devices
 	//use the ANCONx registers to control this, which is different from other devices which
 	//use the ADCON1 register for this purpose.
-    WDTCONbits.ADSHR = 1;			// Select alternate SFR location to access ANCONx registers
+    WDTCONbits.ADSHR = 1;           // Select alternate SFR location to access ANCONx registers
     ANCON0 = 0xFF;                  // Default all pins to digital
     ANCON1 = 0xFF;                  // Default all pins to digital
-    WDTCONbits.ADSHR = 0;			// Select normal SFR locations
+    WDTCONbits.ADSHR = 0;           // Select normal SFR locations
     #endif
 
     #if defined(PIC18F46J50_PIM)
@@ -479,14 +481,15 @@ static void InitializeSystem(void)
 //	is used for	this purpose.  If using this feature, make sure "USE_SELF_POWER_SENSE_IO"
 //	has been defined in HardwareProfile.h, and that an appropriate I/O pin has been mapped
 //	to it in HardwareProfile.h.
+
     #if defined(USE_SELF_POWER_SENSE_IO)
     tris_self_power = INPUT_PIN;	// See HardwareProfile.h
     #endif
     
     UserInit();
 
-    USBDeviceInit();	//usb_device.c.  Initializes USB module SFRs and firmware
-    					//variables to known states.
+    USBDeviceInit();                //usb_device.c.  Initializes USB module SFRs and firmware
+                                    //variables to known states.
 }//end InitializeSystem
 
 
@@ -532,61 +535,61 @@ void Emulate_Joystick(void)
 	//switch between activate the analog and deactivated the analog
 	if((analog_sw==0)&&(old_analog_sw==1))				
 	{
-		analog ^= 1;									//analog switched
-		led ^= 1;										//led switched
-		old_analog_sw=0;								//reset old_analog_sw as 0
+		analog ^= 1;					//analog switched
+		LED ^= 1;					//led switched
+		old_analog_sw=0;				//reset old_analog_sw as 0
 	}
-	else old_analog_sw = analog_sw;						//if analog switch is not pressed, do nothing
+	else old_analog_sw = analog_sw;				//if analog switch is not pressed, do nothing
 
 	//analog was deactivated
 	if (analog==0)										
 	{	
-		led=0;											//led off
-		hid_report_in[2]=127;							//initialized the z_value 
-		hid_report_in[3]=127;							//initialized the Rz_value
+		LED=0;						//led off
+		hid_report_in[2]=127;				//initialized the z_value 
+		hid_report_in[3]=127;				//initialized the Rz_value
 
-														//direction:	7	0	1
-														//				6		2
-		//direction										//				5	4	3
-		if(!b_up)direction=0;							//if b_up is pressed, point to direction 0
-		else if(!b_right)direction=2;					//if b_right is pressed, point to direction 2
-		else if(!b_down)direction=4;					//if b_down is pressed, point to direction 4
-		else if(!b_left)direction=6;					//if b_left is pressed, point to direction 6
-		else direction=8;								//if button is not pressed, point to center
+								//direction:	7	0	1
+                                                                //				6		2
+		//direction					//				5	4	3
+		if(!b_up)direction=0;				//if b_up is pressed, point to direction 0
+		else if(!b_right)direction=2;			//if b_right is pressed, point to direction 2
+		else if(!b_down)direction=4;			//if b_down is pressed, point to direction 4
+		else if(!b_left)direction=6;			//if b_left is pressed, point to direction 6
+		else direction=8;				//if button is not pressed, point to center
 	
-		if((!b_up)&&(!b_right))direction=1;				//if b_up and b_right are pressed, point to direction 1
+		if((!b_up)&&(!b_right))direction=1;			//if b_up and b_right are pressed, point to direction 1
 		else if((!b_right)&&(!b_down))direction=3;		//if b_right and b_down are pressed, point to direction 3
 		else if((!b_down)&&(!b_left))direction=5;		//if b_down and b_left are pressed, point to direction 5
 		else if((!b_left)&&(!b_up))direction=7;			//if b_left and b_up are pressed, point to direction 7
 	
-		switch(direction)								//x:0-255(from left to right), y:0-255(from up to down)
+		switch(direction)                                   //x:0-255(from left to right), y:0-255(from up to down)
 		{
-			case 0: hid_report_in[0]=127;				//send report to x-axis, x=127
-					hid_report_in[1]=0;					//send report to y-axis, y=0
+			case 0: hid_report_in[0]=127;               //send report to x-axis, x=127
+					hid_report_in[1]=0;         //send report to y-axis, y=0
 					break;
-			case 1: hid_report_in[0]=255;				//x=255
-					hid_report_in[1]=0;					//y=0
+			case 1: hid_report_in[0]=255;               //x=255
+					hid_report_in[1]=0;         //y=0
 					break;
-			case 2: hid_report_in[0]=255;				//x=255
-					hid_report_in[1]=127;				//y=127
+			case 2: hid_report_in[0]=255;               //x=255
+					hid_report_in[1]=127;       //y=127
 					break;
-			case 3: hid_report_in[0]=255;				//x=255
-					hid_report_in[1]=255;				//y=255
+			case 3: hid_report_in[0]=255;               //x=255
+					hid_report_in[1]=255;       //y=255
 					break;
-			case 4: hid_report_in[0]=127;				//x=127
-					hid_report_in[1]=255;				//=255
+			case 4: hid_report_in[0]=127;               //x=127
+					hid_report_in[1]=255;       //=255
 					break;
-			case 5: hid_report_in[0]=0;					//x=0
-					hid_report_in[1]=255;				//y=255
+			case 5: hid_report_in[0]=0;                 //x=0
+					hid_report_in[1]=255;       //y=255
 					break;	
-			case 6: hid_report_in[0]=0;					//x=0
-					hid_report_in[1]=127;				//y=127
+			case 6: hid_report_in[0]=0;                 //x=0
+					hid_report_in[1]=127;       //y=127
 					break;	
-			case 7: hid_report_in[0]=0;					//x=0
-					hid_report_in[1]=0;					//y=0
+			case 7: hid_report_in[0]=0;                 //x=0
+					hid_report_in[1]=0;         //y=0
 					break;
-			case 8: hid_report_in[0]=127;				//x=127
-					hid_report_in[1]=127;				//y=127
+			case 8: hid_report_in[0]=127;               //x=127
+					hid_report_in[1]=127;       //y=127
 					break;		
 		}	
 	}
@@ -594,107 +597,107 @@ void Emulate_Joystick(void)
 	//analog was activated
 	else												
 	{
-		led=1;											//led on
+		LED=1;							//led on
 
-														//hat switch direction:	7	0	1
-														//						6 		2	
-		//Hat switch									//						5	4	3
-		if(!b_up)hid_report_in[4]=0x00;					//if b_up is pressed, send report to hat switch, point to 0
+									//hat switch direction:	7	0	1
+                                                                        //						6 		2
+		//Hat switch                                            //						5	4	3
+		if(!b_up)hid_report_in[4]=0x00;				//if b_up is pressed, send report to hat switch, point to 0
 		else if(!b_right)hid_report_in[4]=0x02;			//if b_right is pressed, point to 2
 		else if(!b_down)hid_report_in[4]=0x04;			//if b_down is pressed, point to 4
 		else if(!b_left)hid_report_in[4]=0x06;			//if b_left is pressed, point to 6
-		else hid_report_in[4]=0x08;						//if no button is pressed, point to 8			
+		else hid_report_in[4]=0x08;				//if no button is pressed, point to 8			
 
 		if((!b_up)&&(!b_right))hid_report_in[4]=0x01;			//if b_up and b_right are pressed, send report to hat switch, point to direction 1
-		else if((!b_right)&&(!b_down))hid_report_in[4]=0x03;	//if b_right and b_down are pressed, point to direction 3
+		else if((!b_right)&&(!b_down))hid_report_in[4]=0x03;            //if b_right and b_down are pressed, point to direction 3
 		else if((!b_down)&&(!b_left))hid_report_in[4]=0x05;		//if b_down and b_left are pressed, point to direction 5
 		else if((!b_left)&&(!b_up))hid_report_in[4]=0x07;		//if b_left and b_up are pressed, point to direction 7
 
 		//analog stick
 		switch(step)									
 		{
-			case 0: if(adc_progress==0)					//when adc_progress is 0
+			case 0: if(adc_progress==0)				//when adc_progress is 0
 					{
-						ADCON0=CHANNEL2;				//channel 2 is selected
-						ADCON0bits.GO=1;				//ADC start to process 
-						adc_progress=1;					//set adc_progress as 1
+						ADCON0=CHANNEL2;		//channel 2 is selected
+						ADCON0bits.GO=1;		//ADC start to process 
+						adc_progress=1;			//set adc_progress as 1
 					}
-					if(ADCON0bits.GO==0)				//when adc finish process				
+					if(ADCON0bits.GO==0)			//when adc finish process				
 					{
-						adc_progress=0;					//set adc_progress as 0
-						x_value = 255-ADRESH;			//save x_value as ADRESH (255-ADRESH due to the wrong connection of the hardware)
-						step=1;							//jump to step 1
+						adc_progress=0;			//set adc_progress as 0
+						x_value = 255-ADRESH;		//save x_value as ADRESH (255-ADRESH due to the wrong connection of the hardware)
+						step=1;				//jump to step 1
 					}
 					break;
 	
-			case 1: if(adc_progress==0)					//when adc_progress is 0
+			case 1: if(adc_progress==0)				//when adc_progress is 0
 					{
-						ADCON0=CHANNEL3;				//channel 3 is selected
-						ADCON0bits.GO=1;				//ADC start to process
-						adc_progress=1;					//set adc_progress as 1
+						ADCON0=CHANNEL3;		//channel 3 is selected
+						ADCON0bits.GO=1;		//ADC start to process
+						adc_progress=1;			//set adc_progress as 1
 					}
-					if(ADCON0bits.GO==0)				//when adc finish process
+					if(ADCON0bits.GO==0)                    //when adc finish process
 					{
-						adc_progress=0;					//set adc_progress as 0
-						y_value = ADRESH;				//save y_value as ADRESH
-						step=2;							//jump to step 2
-					}
-					break;	
-	
-			case 2: if(adc_progress==0)					//when adc_progress is 0
-					{
-						ADCON0=CHANNEL0;				//channel 0 is selected
-						ADCON0bits.GO=1;				//ADC start to process
-						adc_progress=1;					//set adc_progress as 1
-					}
-					if(ADCON0bits.GO==0)				//when adc process finish
-					{
-						adc_progress=0;					//set adc_progress as 0
-						z_value = ADRESH;				//save z_value as ADRESH
-						step=3;							//jump to step 3
+						adc_progress=0;			//set adc_progress as 0
+						y_value = ADRESH;		//save y_value as ADRESH
+						step=2;				//jump to step 2
 					}
 					break;	
 	
-			case 3: if(adc_progress==0)					//when adc_progress is 0
+			case 2: if(adc_progress==0)				//when adc_progress is 0
 					{
-						ADCON0=CHANNEL1;				//channel 1 is selected
-						ADCON0bits.GO=1;				//ADC start to process
-						adc_progress=1;					//set adc_progress as 1
+						ADCON0=CHANNEL0;		//channel 0 is selected
+						ADCON0bits.GO=1;		//ADC start to process
+						adc_progress=1;			//set adc_progress as 1
 					}
-					if(ADCON0bits.GO==0)				//when adc process finish
+					if(ADCON0bits.GO==0)                    //when adc process finish
 					{
-						adc_progress=0;					//set adc_progress as 0
-						Rz_value = ADRESH;				//save Rz_value as ADRESH
-						step=0;							//jump to step 0
+						adc_progress=0;			//set adc_progress as 0
+						z_value = ADRESH;		//save z_value as ADRESH
+						step=3;				//jump to step 3
+					}
+					break;	
+	
+			case 3: if(adc_progress==0)				//when adc_progress is 0
+					{
+						ADCON0=CHANNEL1;		//channel 1 is selected
+						ADCON0bits.GO=1;		//ADC start to process
+						adc_progress=1;			//set adc_progress as 1
+					}
+					if(ADCON0bits.GO==0)			//when adc process finish
+					{
+						adc_progress=0;			//set adc_progress as 0
+						Rz_value = ADRESH;		//save Rz_value as ADRESH
+						step=0;				//jump to step 0
 					}
 					break;	
 		}	
-		hid_report_in[0]=x_value;						//send x_value to computer
-		hid_report_in[1]=y_value;						//send y_value to computer
-		hid_report_in[2]=z_value;						//send z_value to computer
-		hid_report_in[3]=Rz_value;						//send Rz_value to computer
+		hid_report_in[0]=x_value;				//send x_value to computer
+		hid_report_in[1]=y_value;				//send y_value to computer
+		hid_report_in[2]=z_value;				//send z_value to computer
+		hid_report_in[3]=Rz_value;				//send Rz_value to computer
 	}
 
-														//button 1:up1		button 2:right1		button 3:down1		button 4:left1		
-	//button											//button 5:start	button 6:select		button 7:button1	button 8:button2
-	hid_report_in[5]=0x00;								//initialized all button as 0
+	//button 1:up1		button 2:right1		button 3:down1		button 4:left1		
+	//button	//button 5:start	button 6:select		button 7:button1	button 8:button2
+	hid_report_in[5]=0x00;                          //initialized all button as 0
 	
-	if(!b_1)hid_report_in[5] |=0x01;					//if b_1 is pressed, send report to button and set bit0 as 1
-		else hid_report_in[5] &=0xFE;					//if not, clear bit0 to 0
-	if(!b_2)hid_report_in[5] |=0x02;					//if b_1 is pressed, set bit1 as 1
-		else hid_report_in[5] &=0xFD;					//if not, clear bit1 to 0					
-	if(!b_3)hid_report_in[5] |=0x04;					//if b_1 is pressed, set bit2 as 1
-		else hid_report_in[5] &=0xFB;					//if not, clear bit2 to 0
-	if(!b_4)hid_report_in[5] |=0x08;					//if b_1 is pressed, set bit3 as 1
-		else hid_report_in[5] &=0xF7;					//if not, clear bit3 to 0 
+	if(!b_1)hid_report_in[5] |=0x01;		//if b_1 is pressed, send report to button and set bit0 as 1
+		else hid_report_in[5] &=0xFE;		//if not, clear bit0 to 0
+	if(!b_2)hid_report_in[5] |=0x02;		//if b_1 is pressed, set bit1 as 1
+		else hid_report_in[5] &=0xFD;		//if not, clear bit1 to 0					
+	if(!b_3)hid_report_in[5] |=0x04;		//if b_1 is pressed, set bit2 as 1
+		else hid_report_in[5] &=0xFB;		//if not, clear bit2 to 0
+	if(!b_4)hid_report_in[5] |=0x08;		//if b_1 is pressed, set bit3 as 1
+		else hid_report_in[5] &=0xF7;		//if not, clear bit3 to 0 
 
-	if(!select)hid_report_in[5] |=0x10;					//if select is pressed, set bit4 as 1
-		else hid_report_in[5] &=0xEF;					//if not, clear bit4 to 0 
-	if(!start)hid_report_in[5] |=0x20;					//if start is pressed, set bit5 as 1
-		else hid_report_in[5] &=0xDF;					//if not, clear bit5 to 0
-	if(!button2)hid_report_in[5] |=0x40;				//if button2 is pressed, set bit6 as 1
-		else hid_report_in[5] &=0xBF;					//if not, clear bit6 to 0 
-	if(!button1)hid_report_in[5] |=0x80;				//if button1 is pressed, set bit7 as 1
+	if(!SELECT)hid_report_in[5] |=0x10;		//if select is pressed, set bit4 as 1
+		else hid_report_in[5] &=0xEF;		//if not, clear bit4 to 0 
+	if(!START)hid_report_in[5] |=0x20;		//if start is pressed, set bit5 as 1
+		else hid_report_in[5] &=0xDF;		//if not, clear bit5 to 0
+	if(!BUTTON2)hid_report_in[5] |=0x40;            //if button2 is pressed, set bit6 as 1
+		else hid_report_in[5] &=0xBF;		//if not, clear bit6 to 0 
+	if(!BUTTON1)hid_report_in[5] |=0x80;            //if button1 is pressed, set bit7 as 1
 		else hid_report_in[5] &=0x7F;				
 
     if(HIDTxHandleBusy(lastTransmission) == 0)
@@ -959,7 +962,7 @@ void USBCBSendResume(void)
 {
     static WORD delay_count;
     
-    USBResumeControl = 1;                // Start RESUME signaling
+    USBResumeControl = 1;               // Start RESUME signaling
     
     delay_count = 1800U;                // Set RESUME line for 1-13 ms
     do
